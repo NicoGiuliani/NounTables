@@ -14,13 +14,22 @@ import re
 def getData(request, query):
   try:
     fetch = "scrapy fetch https://api.verbix.com/conjugator/iv1/6153a464-b4f0-11ed-9ece-ee3761609078/1/75/175/{}".format(query)
-    print(fetch)
     result = subprocess.check_output(fetch, shell=True, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
     selector = scrapy.Selector(text=result)
     html = selector.css('html body p div').get()
-    # print(html)
-    match = parseTerms(html) if html is not None else {}
-    return Response(match)
+
+    # verbs
+    if html is not None:
+      match = parseTerms(html) if html is not None else {}
+      return Response(match)
+    # nouns
+    else: 
+      fetch = "scrapy fetch https://api.verbix.com/conjugator/iv1/6153a464-b4f0-11ed-9ece-ee3761609078/1/1075/1075/{}".format(query)
+      result = subprocess.check_output(fetch, shell=True, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
+      selector = scrapy.Selector(text=result)
+      html = selector.css('html body p div').get()
+      match = parseTerms2(html) if html is not None else {}
+      return Response(match)
 
   except subprocess.CalledProcessError as e:
     # Handle errors if the command fails
@@ -31,22 +40,108 @@ def getData(request, query):
 
 def parseTerms(htmlContent):
   # print("html:", htmlContent)
-  normalClass = re.compile(r"(?<=<span class='\\\"normal\\\"'>)(.*?)(?=<\/span>)")
+  normalClass = re.compile(r"(<span class='\\\"normal\\\"'>|<span class='\\\"irregular\\\"'>)(.*?)<\/span>")
   nominalForms = normalClass.findall(htmlContent)
-  infinitive = nominalForms[0]
-  pastparticiple = nominalForms[1]
-  presentParticiple = nominalForms[2]
+  print(nominalForms)
+  infinitive = { 
+    "form": nominalForms[0][1], 
+    "conjugationType": "normal" if "normal" in nominalForms[0][0] else "irregular"
+  }
+  pastparticiple = {
+    "form": nominalForms[1][1], 
+    "conjugationType": "normal" if "normal" in nominalForms[0][0] else "irregular"
+  }
+  presentParticiple = {
+    "form": nominalForms[2][1],
+     "conjugationType": "normal" if "normal" in nominalForms[0][0] else "irregular"
+  }
 
   columnsSub = re.compile(r"(?<=$<table class='\\\"verbtense\\\"'>).|\n*?(?<=<span data-speech='\\\").*?(?=<\/span>)")
   tensesList = columnsSub.findall(htmlContent)
   presentTenses = extractPresent(tensesList)
+  # print(presentTenses)
+  firstPersonPresent = {
+    "form": presentTenses[0][0],
+     "conjugationType": "regular" if "regular" in presentTenses[0][1] else "irregular"
+  }
+  secondPersonPresent = {
+    "form": presentTenses[1][0],
+     "conjugationType": "regular" if "regular" in presentTenses[1][1] else "irregular"
+  }
+  thirdPersonPresent = {
+    "form": presentTenses[2][0],
+     "conjugationType": "regular" if "regular" in presentTenses[2][1] else "irregular"
+  }
+  firstPersonPluralPresent = {
+    "form": presentTenses[3][0],
+     "conjugationType": "regular" if "regular" in presentTenses[3][1] else "irregular"
+  }
+  secondPersonPluralPresent = {
+    "form": presentTenses[4][0],
+     "conjugationType": "regular" if "regular" in presentTenses[4][1] else "irregular"
+  }
+  thirdPersonPluralPresent = {
+    "form": presentTenses[5][0],
+     "conjugationType": "regular" if "regular" in presentTenses[5][1] else "irregular"
+  }
 
   # print(presentTenses)
   
   return {
     "infinitive": infinitive,
     "pastParticiple": pastparticiple,
-    "presentParticiple": presentParticiple
+    "presentParticiple": presentParticiple,
+    "firstPersonPresent": firstPersonPresent,
+    "secondPersonPresent": secondPersonPresent,
+    "thirdPersonPresent": thirdPersonPresent,
+    "firstPersonPluralPresent": firstPersonPluralPresent,
+    "secondPersonPluralPresent": secondPersonPluralPresent,
+    "thirdPersonPluralPresent": thirdPersonPluralPresent,
+  }
+
+def parseTerms2(htmlContent):
+  # print("html:", htmlContent)
+  normalClass = re.compile(r"(?<=<span class='\\\"normal\\\"'>)(.*?)(?=<\/span>)")
+  nounDeclensions = normalClass.findall(htmlContent)
+  # print(nounDeclensions)
+  # noun = nounDeclensions[0]
+  nominativeSingularIndefinite = nounDeclensions[1]
+  nominativeSingularDefinite = nounDeclensions[2]
+  nominativePluralIndefinite = nounDeclensions[3]
+  nominativePluralDefinite = nounDeclensions[4]
+
+  genitiveSingularIndefinite = nounDeclensions[5]
+  genitiveSingularDefinite = nounDeclensions[6]
+  genitivePluralIndefinite = nounDeclensions[7]
+  genitivePluralDefinite = nounDeclensions[8]
+
+  dativeSingularIndefinite = nounDeclensions[9]
+  dativeSingularDefinite = nounDeclensions[10]
+  dativePluralIndefinite = nounDeclensions[11]
+  dativePluralDefinite = nounDeclensions[12]
+
+  accusativeSingularIndefinite = nounDeclensions[13]
+  accusativeSingularDefinite = nounDeclensions[14]
+  accusativePluralIndefinite = nounDeclensions[15]
+  accusativePluralDefinite = nounDeclensions[16]
+  
+  return {
+    "nominativeSingularIndefinite": nominativeSingularIndefinite,
+    "nominativeSingularDefinite": nominativeSingularDefinite, 
+    "nominativePluralIndefinite": nominativePluralIndefinite,
+    "nominativePluralDefinite": nominativePluralDefinite,
+    "genitiveSingularIndefinite": genitiveSingularIndefinite,
+    "genitiveSingularDefinite": genitiveSingularDefinite,
+    "genitivePluralIndefinite": genitivePluralIndefinite,
+    "genitivePluralDefinite": genitivePluralDefinite,
+    "dativeSingularIndefinite": dativeSingularIndefinite,
+    "dativeSingularDefinite": dativeSingularDefinite,
+    "dativePluralIndefinite": dativePluralIndefinite,
+    "dativePluralDefinite": dativePluralDefinite,
+    "accusativeSingularIndefinite": accusativeSingularIndefinite,
+    "accusativeSingularDefinite": accusativeSingularDefinite,
+    "accusativePluralIndefinite": accusativePluralIndefinite,
+    "accusativePluralDefinite": accusativePluralDefinite
   }
 
 def extractPresent(tensesList):
