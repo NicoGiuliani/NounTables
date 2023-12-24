@@ -55,6 +55,14 @@ def parseTerms(htmlContent):
     "form": nominalForms[2][1],
      "conjugationType": "normal" if "normal" in nominalForms[0][0] else "irregular"
   }
+  singularImperative = {
+    "form": nominalForms[3][1],
+    "conjugationType": "normal" if "normal" in nominalForms[3][0] else "irregular"
+  }
+  pluralImperative = {
+    "form": nominalForms[5][1],
+    "conjugationType": "normal" if "normal" in nominalForms[5][0] else "irregular"
+  }
 
   columnsSub = re.compile(r"(?<=$<table class='\\\"verbtense\\\"'>).|\n*?(?<=<span data-speech='\\\").*?(?=<\/span>)")
   tensesList = columnsSub.findall(htmlContent)
@@ -84,6 +92,30 @@ def parseTerms(htmlContent):
     "form": presentTenses[5][0],
      "conjugationType": "regular" if "regular" in presentTenses[5][1] else "irregular"
   }
+  firstPersonPast = {
+    "form": presentTenses[6][0],
+     "conjugationType": "regular" if "regular" in presentTenses[6][1] else "irregular"
+  }
+  secondPersonPast = {
+    "form": presentTenses[7][0],
+     "conjugationType": "regular" if "regular" in presentTenses[7][1] else "irregular"
+  }
+  thirdPersonPast = {
+    "form": presentTenses[8][0],
+     "conjugationType": "regular" if "regular" in presentTenses[8][1] else "irregular"
+  }
+  firstPersonPluralPast = {
+    "form": presentTenses[9][0],
+     "conjugationType": "regular" if "regular" in presentTenses[9][1] else "irregular"
+  }
+  secondPersonPluralPast = {
+    "form": presentTenses[10][0],
+     "conjugationType": "regular" if "regular" in presentTenses[10][1] else "irregular"
+  }
+  thirdPersonPluralPast = {
+    "form": presentTenses[11][0],
+     "conjugationType": "regular" if "regular" in presentTenses[11][1] else "irregular"
+  }
 
   # print(presentTenses)
   
@@ -91,12 +123,23 @@ def parseTerms(htmlContent):
     "infinitive": infinitive,
     "pastParticiple": pastparticiple,
     "presentParticiple": presentParticiple,
+    
     "firstPersonPresent": firstPersonPresent,
     "secondPersonPresent": secondPersonPresent,
     "thirdPersonPresent": thirdPersonPresent,
     "firstPersonPluralPresent": firstPersonPluralPresent,
     "secondPersonPluralPresent": secondPersonPluralPresent,
     "thirdPersonPluralPresent": thirdPersonPluralPresent,
+
+    "firstPersonPast": firstPersonPast,
+    "secondPersonPast": secondPersonPast,
+    "thirdPersonPast": thirdPersonPast,
+    "firstPersonPluralPast": firstPersonPluralPast,
+    "secondPersonPluralPast": secondPersonPluralPast,
+    "thirdPersonPluralPast": thirdPersonPluralPast,
+
+    "singularImperative": singularImperative,
+    "pluralImperative": pluralImperative,
   }
 
 def parseTerms2(htmlContent):
@@ -141,7 +184,7 @@ def parseTerms2(htmlContent):
     "accusativeSingularIndefinite": accusativeSingularIndefinite,
     "accusativeSingularDefinite": accusativeSingularDefinite,
     "accusativePluralIndefinite": accusativePluralIndefinite,
-    "accusativePluralDefinite": accusativePluralDefinite
+    "accusativePluralDefinite": accusativePluralDefinite,
   }
 
 def extractPresent(tensesList):
